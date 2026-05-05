@@ -33,7 +33,6 @@ def build_features(hsb_vecs, de_vecs, sim, fit_pca=True, pca_hsb=None, pca_de=No
     hsb_pca = pca_hsb.transform(hsb_vecs)
     de_pca = pca_de.transform(de_vecs)
     diff_pca = pca_diff.transform(diff)
-    # cs + de + diff + prod + l2 + similarity
     sim_col = sim.diagonal().reshape(-1, 1)  
     features = np.hstack([hsb_pca, de_pca,diff_pca])
     return features,pca_hsb, pca_de,pca_diff

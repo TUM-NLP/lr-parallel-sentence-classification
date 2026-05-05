@@ -15,7 +15,7 @@ LEGAL_TERMS = [
     "kapitel", 
     "abl.",   
     "amtsblatt",
-    "eur-lex",  
+    "eur-lex", 
 ]
 
 smooth = SmoothingFunction().method1
@@ -32,7 +32,9 @@ remove_regulation = False
 remove_template_duplicates = True
 strict_legal_filter = False
 
-langid.set_languages(['sl', 'de'])
+langid.set_languages(['cs', 'de'])
+
+
 
 non_latin_pattern = re.compile(r"[؀-ۿЀ-ӿ一-鿿가-힯]+")
 
@@ -102,78 +104,70 @@ def contains_legal_keywords(text):
 
 
 def filter_corpus(df):
-    print(f"🔍 : {len(df)}")
+    print(f"🔍 原始句对数: {len(df)}")
 
-    df["sl"] = df["sl"].astype(str).str.strip()
+    df["cs"] = df["cs"].astype(str).str.strip()
     df["de"] = df["de"].astype(str).str.strip()
 
-    # 1. 
-    df = df[df["sl"].apply(looks_language_like) & df["de"].apply(looks_language_like)]
 
-    print(f"✅ : {len(df)}")
-    # 2.
-    url_mask = df["sl"].apply(contains_url) | df["de"].apply(contains_url)
-    print(f"❌ : {url_mask.sum()}")
+    df = df[df["cs"].apply(looks_language_like) & df["de"].apply(looks_language_like)]
+
+
+    url_mask = df["cs"].apply(contains_url) | df["de"].apply(contains_url)
     df = df[~url_mask]
-    # 2. 
-    df["sl_len"] = df["sl"].str.split().str.len()
+    df["cs_len"] = df["cs"].str.split().str.len()
     df["de_len"] = df["de"].str.split().str.len()
     df = df[
-        (df["sl_len"] >= min_words) & (df["sl_len"] <= max_words) &
+        (df["cs_len"] >= min_words) & (df["cs_len"] <= max_words) &
         (df["de_len"] >= min_words) & (df["de_len"] <= max_words)
     ]
 
-    print(f"✅ : {len(df)}")
 
-    # 3. 
-    df["len_ratio"] = df["sl_len"] / df["de_len"]
+    df["len_ratio"] = df["cs_len"] / df["de_len"]
     df = df[(df["len_ratio"] >= min_len_ratio) & (df["len_ratio"] <= max_len_ratio)]
-    print(f"✅ : {len(df)}")
 
-    # 4. 
+
+   
     df = df.drop_duplicates()
-    print(f"✅ : {len(df)}")
 
-    # 5. 
-    mask = df["sl"].apply(has_dot_line) | df["de"].apply(has_dot_line)
-    print(f"❌ : {mask.sum()}")
+
+    mask = df["cs"].apply(has_dot_line) | df["de"].apply(has_dot_line)
     df = df[~mask]
 
     before = len(df)
     df = df[
-        df["sl"].apply(lambda x: is_lang(x, "sl")) &
+        df["cs"].apply(lambda x: is_lang(x, "cs")) &
         df["de"].apply(lambda x: is_lang(x, "de"))
     ]
-    print(f"❌  {before - len(df)}")
 
-    # 6. 
+
     if remove_template_duplicates:
-        df["sl_template"] = df["sl"].apply(normalize_template)
+        df["cs_template"] = df["cs"].apply(normalize_template)
         df["de_template"] = df["de"].apply(normalize_template)
-        template_counts = df.groupby(["sl_template", "de_template"]).size()
+        template_counts = df.groupby(["cs_template", "de_template"]).size()
         duplicated = template_counts[template_counts > 1].index
         before = len(df)
-        df = df[~df.set_index(["sl_template", "de_template"]).index.isin(duplicated)]
-        print(f"❌ : {before - len(df)}")
+        df = df[~df.set_index(["cs_template", "de_template"]).index.isin(duplicated)]
 
-    helper_cols = ["sl_template", "de_template", "sl_len", "de_len", "len_ratio"]
+
+    helper_cols = ["cs_template", "de_template", "cs_len", "de_len", "len_ratio"]
     df = df.drop(columns=[c for c in helper_cols if c in df.columns])
 
-    # 
-    mask_foreign = df["sl"].apply(contains_foreign_script) | df["de"].apply(contains_foreign_script)
 
-    # 
+    mask_foreign = df["cs"].apply(contains_foreign_script) | df["de"].apply(contains_foreign_script)
+
+
     df_foreign = df[mask_foreign]
-    df_foreign.to_csv("de-sl-contains_foreign_script.tsv", sep="	", index=False)
-    print(f"❌ : {len(df_foreign)}")
+    df_foreign.to_csv("de-cs-contains_foreign_script.tsv", sep="	", index=False)
+
     df = df[~mask_foreign]
     before = len(df)
-    df = df[~df["sl"].str.contains("�")]
-    print(f"❌ : {before - len(df)}")
+    df = df[~df["cs"].str.contains("")]
+
     # 保存
     df.to_csv(output_file, sep="	", index=False)
 
-    print(f"✅ : {len(df)}")
+    print(f"Final sentence pairs: {len(df)}")
 
 
 def main():
