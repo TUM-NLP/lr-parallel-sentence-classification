@@ -1,12 +1,11 @@
 # Parallel Sentence Filtering for Low-Resource Language Pairs: A Case Study for Upper Sorbian, German, and Czech
 
 ## Description
-This repository contains the core scripts used in the thesis:  
-**Multilingual Embedding-Based Sentence Pair Analysis in Low-Resource Languages**.
-
 This repository presents the dataset and code from our LREC 2026 article *Parallel Sentence Filtering for Low-Resource Language Pairs: A Case Study for Upper Sorbian, German, and Czech* (Jiang et al., 2026). 
 The work stems from Ruiyang Jiang's bachelor's thesis (dataset, code, and experiments): **Multilingual Embedding-Based Sentence Pair Analysis in Low-Resource Languages**.
 
+## Datasets
+The four datasets of our study are in the `data` folder.
 
 ## Files
 Below are the files in the `script` folder:
@@ -21,7 +20,9 @@ Below are the files in the `script` folder:
 - `prefiltering.py`- dataset pre-processing pipeline
 - `antonyms_de.json` — resource file for antonym-based transformations  
 
-
+## Licence
+The repository is published with the MIT licence.  
+The datasets have a CC BY-NC-SA licence.
 
 ## Acknowledgements
 This work was funded by the European Research Council (ERC) under grant agreements No. 101113091 - Data4ML (a Proof of Concept Grant) and No. 101141712 - EPICAL.
